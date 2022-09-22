@@ -15,8 +15,7 @@ def csv_readline(line):
     for row in csv.reader([line]):
         return row
 
-
-class OrderDateCount(MRJob):
+class OrderDateSum(MRJob):
 
     def steps(self):
         return [
@@ -31,7 +30,7 @@ class OrderDateCount(MRJob):
         # skip first row as header
         if row['order_id'] != 'order_id':
             # Yield the order_date
-            yield row['order_date'][0:7], int('order_total')
+            yield row['order_date'][0:7], int(row['order_total'])
 
     def reducer(self, key, values):
         # for 'order_date' compute
@@ -39,12 +38,11 @@ class OrderDateCount(MRJob):
 
     def sort(self, key, values):
         data = []
-        for order_date, order_count in values:
-            data.append((order_date, order_count))
+        for order_date, order_total in values:
+            data.append((order_date, order_total))
             data.sort()
-        for order_date, order_count in data:
-            yield order_date, order_count
-
+        for order_date, order_total in data:
+            yield order_date, order_total
 
 if __name__ == '__main__':
-    OrderDateCount.run()
+    OrderDateSum.run()
